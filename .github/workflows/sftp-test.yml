@@ -1,0 +1,43 @@
+name: Timeweb SFTP connection test
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-sftp:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check required secrets
+        env:
+          HOST: ${{ secrets.TIMEWEB_HOST }}
+          PORT: ${{ secrets.TIMEWEB_PORT }}
+          USER: ${{ secrets.TIMEWEB_USER }}
+          PASSWORD: ${{ secrets.TIMEWEB_PASSWORD }}
+        run: |
+          for name in HOST PORT USER PASSWORD; do
+            if [ -z "${!name}" ]; then echo "::error::Missing secret: $name"; exit 1; fi
+          done
+
+      - name: Verify SSH host key and read-only SFTP access
+        env:
+          HOST: ${{ secrets.TIMEWEB_HOST }}
+          PORT: ${{ secrets.TIMEWEB_PORT }}
+          USER: ${{ secrets.TIMEWEB_USER }}
+          PASSWORD: ${{ secrets.TIMEWEB_PASSWORD }}
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq sshpass >/dev/null
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          ssh-keyscan -T 10 -p "$PORT" -H "$HOST" > ~/.ssh/known_hosts 2>/dev/null
+          test -s ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+          # IMPORTANT: Confirm Timeweb's SSH host fingerprint out-of-band before trusting this scan for production.
+          printf 'pwd\nls /AGRONOM/public_html\nbye\n' > /tmp/sftp-readonly.txt
+          SSHPASS="$PASSWORD" sshpass -e sftp -o BatchMode=no -o StrictHostKeyChecking=yes -o PreferredAuthentications=password -o PubkeyAuthentication=no -P "$PORT" -b /tmp/sftp-readonly.txt "$USER@$HOST"
+          echo "SFTP read-only test completed. No files were changed."
