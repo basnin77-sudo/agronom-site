@@ -38,6 +38,6 @@ jobs:
           test -s ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
           # IMPORTANT: Confirm Timeweb's SSH host fingerprint out-of-band before trusting this scan for production.
-          printf 'pwd\nls /AGRONOM/public_html\nbye\n' > /tmp/sftp-readonly.txt
+          printf 'pwd\nls\nls AGRONOM\nls AGRONOM/public_html\nbye\n' > /tmp/sftp-readonly.txt
           SSHPASS="$PASSWORD" sshpass -e sftp -o BatchMode=no -o StrictHostKeyChecking=yes -o PreferredAuthentications=password -o PubkeyAuthentication=no -P "$PORT" -b /tmp/sftp-readonly.txt "$USER@$HOST"
           echo "SFTP read-only test completed. No files were changed."
