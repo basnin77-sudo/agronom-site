@@ -1,0 +1,71 @@
+/* Palette and shapes follow the supplied green leaf / white A app icon. */
+:root {
+  --forest: #063a28;
+  --forest-light: #12533a;
+  --cream: #f7faf5;
+  --ink: #123b2a;
+  --muted: #5c7162;
+  --gold: #b5e86a;
+  --border: #d8e4d4;
+  --leaf: #b5e86a;
+}
+body { background: var(--cream); }
+a:focus-visible, button:focus-visible, summary:focus-visible, [tabindex]:focus-visible { outline-color: #50872a; }
+.header.is-scrolled { background: #063a28f0; }
+.brand-point { color: var(--leaf); }
+.button { border-radius: 14px; }
+.button-gold {
+  background: linear-gradient(125deg, #c4ef86, #a5db59);
+  color: #123b21; border-color: #d6f5ab66;
+  box-shadow: 0 8px 28px #0427192b, inset 0 1px 0 #ffffff50;
+}
+.button-gold:hover { background: #cef39a; color: #123b21; }
+.button-header:hover { background: var(--leaf); border-color: var(--leaf); }
+.hero h1 em, .garden-card em { color: #c8efa0; }
+.hero-description { color: #edf4e8; }
+.hero-note { background: linear-gradient(125deg, #24533699, #0838217a); border-color: #d9f5ba40; border-radius: 20px; }
+.hero-note .tiny-label { color: #c8efa0; }
+.hero-grain { background: radial-gradient(ellipse at 70% 40%, #c9f28917, transparent 60%); }
+.gold-line { background: #5a8b39; }
+.live-dot { box-shadow: 0 0 0 5px #b5e86a18; }
+.intro-row em, .section-top em, .knowledge-heading em, .faq-heading em { color: #367a40; }
+.benefit-line svg, .tab-icon, .feature-tab.is-active .tab-icon { color: #498448; }
+.feature-tab.is-active .tab-number { color: #347841; }
+.feature-tab:hover .tab-title { color: #347841; }
+.tab-track { background: linear-gradient(90deg, #2b7a3e, #a5d85f); }
+.product-stage { background: linear-gradient(145deg, #e5efda, #f0f6e9 55%, #d9e9c9); border-radius: 28px; border: 1px solid #d9e6cf; }
+.stage-word { color: #d4e5c6; }
+.demo-season, .demo-journal-header { background: #e6f1dc; border-color: #d6e6c7; }
+.demo-season > svg { color: #669139; }
+.demo-info { background: #edf5e5; border-color: #d8e7cb; }
+.phone-app-top > span > span { color: #4a8b41; }
+.garden-card { border-radius: 24px; }
+.knowledge-section { background: #eaf2e4; }
+.counter { color: #286a36; }
+.number-row { border-color: #cfdfc5; }
+.number-row svg { color: #4e8546; }
+.download-section { background: #063a28; }
+.download-section:after { background: linear-gradient(90deg, #063a28 0%, #063a28d9 50%, #063a28b8); }
+.download-heading > .eyebrow { color: #c6e9a6; }
+.download-heading h2 em { color: #c8efa0; }
+.download-info { background: linear-gradient(140deg, #b5e86a0e, #ffffff05); border-color: #d6efbd30; border-radius: 24px; }
+.download-details summary > span { color: #b5e86a; }
+.download-main small { color: #395c28; }
+.device-message { color: #deedce; border-color: #c3e69e44; }
+.footer { background: #052f22; }
+.footer-main > p { color: #d3e3c8; }
+.motion-toggle { background: #063a28ed; border-color: #b5d99860; }
+.motion-toggle:hover { background: #12533a; }
+@media (max-width: 650px) {
+  .product-stage, .garden-card, .download-info { border-radius: 20px; }
+  .feature-tab.is-active { border-color: var(--border); }
+}
+
+/* Verified owner contact details supplied by the owner. */
+.footer-contacts{display:grid;grid-template-columns:1.2fr 1fr;gap:28px 60px;padding-top:28px;padding-bottom:32px;border-top:1px solid #ffffff20}
+.footer-contact-label{font-size:.8125rem;line-height:1.5;color:#bed0b6;margin-bottom:10px}
+.footer-company{font-size:1rem;font-weight:500;line-height:1.5;margin-bottom:6px}
+.footer-contacts address{font-style:normal;font-size:.875rem;line-height:1.65;color:#d3e3c8}
+.footer-email{display:inline-block;font-size:1rem;line-height:1.6;color:#d9f3b7;text-decoration:underline;text-underline-offset:5px;overflow-wrap:anywhere}
+.footer-email:hover{color:#fff}
+@media(max-width:650px){.footer-contacts{grid-template-columns:1fr;gap:24px;padding-block:25px}}

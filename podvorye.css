@@ -1,0 +1,15 @@
+/* BASNIN ECOGENESIS: автономные стили блока «Подворье рядом». */
+.podvorye-announcement{color:#f0f3ea;background:linear-gradient(125deg,#142d27,#0e221e 66%,#17372b);border:1px solid #356450;border-radius:24px;margin:60px auto;padding:clamp(24px,5vw,58px);max-width:1160px;font-family:inherit;overflow:hidden}
+.podvorye-announcement *{box-sizing:border-box}
+.podvorye-announcement__inner{display:grid;grid-template-columns:minmax(0,1fr) 190px;align-items:center;gap:40px}
+.podvorye-announcement__eyebrow{font-size:.75rem;letter-spacing:.13em;color:#b7d6a3;font-weight:700;text-transform:uppercase}
+.podvorye-announcement h2{font-size:clamp(2rem,4vw,3.3rem);letter-spacing:-.035em;line-height:1.12;color:#f7f7ec;margin:12px 0 18px}
+.podvorye-announcement p{max-width:66ch;line-height:1.65}
+.podvorye-announcement__status{display:inline-flex;align-items:center;gap:9px;padding:7px 13px;border:1px solid #668b65;border-radius:99px;color:#d7eabf;font-size:.88rem;font-weight:600;margin:0 0 18px}
+.podvorye-announcement__dot{width:8px;height:8px;border-radius:100%;background:#d8b46c}
+.podvorye-announcement__lead{font-size:1.15rem;font-weight:700;color:#fff}
+.podvorye-announcement__footnote{font-size:.87rem;color:#bbcbc1;margin-top:22px}
+.podvorye-announcement__symbol{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;min-height:200px;border:1px solid #4e6f5b;border-radius:28px;background:#203d2e}
+.podvorye-announcement__symbol span{font-size:90px;line-height:1}
+.podvorye-announcement__symbol small{font:600 .78rem/1.2 monospace;color:#c5d7aa;letter-spacing:.18em}
+@media(max-width:680px){.podvorye-announcement{margin:40px 16px;padding:28px 24px}.podvorye-announcement__inner{grid-template-columns:1fr;gap:18px}.podvorye-announcement__symbol{min-height:105px;flex-direction:row}.podvorye-announcement__symbol span{font-size:56px}}
