@@ -1,6 +1,18 @@
 name: Deploy website to Timeweb (SFTP)
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - '**/*.html'
+      - '**/*.css'
+      - '**/*.js'
+      - 'assets/**'
+      - 'downloads/**'
+      - 'robots.txt'
+      - 'sitemap.xml'
+      - 'favicon.ico'
   workflow_dispatch:
     inputs:
       mode:
@@ -62,7 +74,7 @@ jobs:
           PY
 
       - name: Upload files (only in deploy mode)
-        if: ${{ inputs.mode == 'deploy' }}
+        if: ${{ github.event_name == 'push' || inputs.mode == 'deploy' }}
         env:
           HOST: ${{ secrets.TIMEWEB_HOST }}
           PORT: ${{ secrets.TIMEWEB_PORT }}
