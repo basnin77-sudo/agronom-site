@@ -1,0 +1,39 @@
+/* Agronom 2.0 design preview. Isolated from production until merge. */
+:root{--eco-dark:#092b22;--eco-deep:#071d18;--eco-lime:#d9efac;--eco-ivory:#f6f5ec}
+.hero{min-height:min(880px,100svh);isolation:isolate}
+.hero-shade{background:linear-gradient(90deg,rgba(5,29,22,.91) 0%,rgba(6,32,25,.79) 36%,rgba(6,32,25,.18) 100%),linear-gradient(0deg,rgba(5,29,22,.55),transparent 35%)}
+.hero-copy{max-width:850px}
+.hero h1{letter-spacing:-.058em;line-height:1.02;text-wrap:balance}
+.hero h1 em{color:#e5f3c4}
+.hero-description{max-width:610px;line-height:1.65}
+.hero-intro{letter-spacing:.12em}
+.hero-separator{opacity:.45;padding:0 .35em}
+.hero-trust{font-size:.85rem;letter-spacing:.025em;color:#e1e7da;margin:18px 0 0}
+.eco-section{background:var(--eco-ivory);padding:clamp(76px,9vw,140px) 0;color:var(--eco-dark);position:relative;overflow:hidden}
+.eco-section:before{content:"";position:absolute;inset:0 0 auto auto;width:42%;height:300px;background:radial-gradient(ellipse at top right,rgba(190,211,158,.27),transparent 70%);pointer-events:none}
+.eco-shell{position:relative}
+.eco-top{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(260px,.7fr);gap:clamp(32px,6vw,110px);align-items:end;margin-bottom:48px}
+.eco-kicker{font-size:.75rem;font-weight:800;letter-spacing:.22em;margin-bottom:26px}
+.eco-kicker span{color:#7b9d56}
+.eco-top h2{font-size:clamp(2.5rem,5.5vw,5.5rem);line-height:1.08;letter-spacing:-.055em;font-weight:600;margin:0}
+.eco-top h2 em{font-style:normal;color:#6d9064}
+.eco-lead{font-size:clamp(1rem,1.5vw,1.17rem);line-height:1.8;max-width:440px;margin:0;color:#476254}
+.eco-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.eco-card{min-height:390px;border:1px solid #d7e0d1;background:#fff;border-radius:23px;padding:clamp(24px,2.7vw,40px);display:flex;flex-direction:column;transition:transform .25s ease,box-shadow .25s ease}
+.eco-card:hover{transform:translateY(-5px);box-shadow:0 18px 40px rgba(14,43,30,.09)}
+.eco-card--featured{background:linear-gradient(145deg,#174b36,#082b23);color:#f6f8ef;border-color:#174b36}
+.eco-card-top{display:flex;gap:12px;justify-content:space-between;align-items:center;flex-wrap:wrap}
+.eco-number{font-size:.72rem;font-weight:800;letter-spacing:.16em;opacity:.75}
+.eco-status{border:1px solid #cad7c8;border-radius:99px;padding:7px 11px;font-size:.68rem;letter-spacing:.02em;white-space:nowrap}
+.eco-card--featured .eco-status{border-color:#69917c}
+.eco-status--active{background:rgba(212,238,176,.13)}
+.eco-card-icon{font-size:3.5rem;line-height:1;margin:auto 0 20px;color:#75966c}
+.eco-card--featured .eco-card-icon{color:#d6eaa8}
+.eco-card h3{font-size:clamp(1.55rem,2.4vw,2.3rem);letter-spacing:-.04em;line-height:1.15;margin:0 0 16px}
+.eco-card p{font-size:.96rem;line-height:1.65;margin:0 0 26px;opacity:.8}
+.eco-link{display:inline-flex;gap:12px;align-items:center;margin-top:auto;font-weight:700;font-size:.88rem;text-decoration:none;color:inherit;border-bottom:1px solid currentColor;padding-bottom:8px;align-self:flex-start}
+.eco-link--muted{opacity:.55;border:0}
+.eco-disclaimer{font-size:.78rem;color:#667b6d;margin:25px 0 0}
+@media(max-width:900px){.eco-top{grid-template-columns:1fr}.eco-grid{grid-template-columns:1fr 1fr}.eco-card--featured{grid-column:1/-1;min-height:320px}.hero-shade{background:linear-gradient(90deg,rgba(5,29,22,.88),rgba(5,29,22,.42)),linear-gradient(0deg,rgba(5,29,22,.5),transparent)}}
+@media(max-width:600px){.eco-section{padding:72px 0}.eco-top{margin-bottom:30px}.eco-grid{grid-template-columns:1fr}.eco-card--featured{grid-column:auto}.eco-card{min-height:310px}.eco-card-icon{margin:36px 0 22px}.hero-trust{font-size:.77rem;line-height:1.6}.hero h1{letter-spacing:-.045em}}
+@media(prefers-reduced-motion:reduce){.eco-card{transition:none}.eco-card:hover{transform:none}}
