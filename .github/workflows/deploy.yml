@@ -97,25 +97,35 @@ jobs:
           if host != 'vh276.timeweb.ru' or port != 22:
               raise RuntimeError('Unexpected SFTP host/port; refusing deployment')
           import socket, time
-          try:
-              addresses = sorted({entry[4][0] for entry in socket.getaddrinfo(host, port, type=socket.SOCK_STREAM)})
-              print('DNS addresses:', ', '.join(addresses), flush=True)
-          except OSError as exc:
-              raise RuntimeError(f'DNS resolution failed: {exc}') from exc
+          # Force IPv4: GitHub-hosted runners may not have an IPv6 route.
+          addresses = sorted({entry[4][0] for entry in socket.getaddrinfo(host, port, family=socket.AF_INET, type=socket.SOCK_STREAM)})
+          if not addresses:
+              raise RuntimeError('No IPv4 addresses for SFTP host')
+          print('IPv4 DNS addresses:', ', '.join(addresses), flush=True)
+          connected_address = None
+          for attempt in range(1, 4):
+              for address in addresses:
+                  try:
+                      with socket.create_connection((address, port), timeout=12) as sock:
+                          print('IPv4 TCP connected:', address, 'SSH banner:', sock.recv(128).decode('ascii','replace').strip(), flush=True)
+                          connected_address = address
+                          break
+                  except OSError as exc:
+                      print(f'IPv4 TCP attempt {attempt} to {address}:{port} failed: {exc}', flush=True)
+              if connected_address:
+                  break
+              time.sleep(3)
+          if not connected_address:
+              raise RuntimeError('No IPv4 SSH connectivity to Timeweb; verify SSH host, port, firewall; no files changed')
           keys = []
           for attempt in range(1, 4):
-              try:
-                  with socket.create_connection((host, port), timeout=12) as sock:
-                      banner = sock.recv(128).decode('ascii', 'replace').strip()
-                      print('TCP connection established; SSH banner:', banner, flush=True)
-              except OSError as exc:
-                  print(f'TCP connection attempt {attempt} failed: {exc}', flush=True)
-              scan = subprocess.run(['ssh-keyscan','-T','20','-t','ed25519','-p',str(port),host], capture_output=True, text=True)
+              scan = subprocess.run(['ssh-keyscan','-4','-T','20','-t','ed25519','-p',str(port),host], capture_output=True, text=True)
               keys = [line for line in scan.stdout.splitlines() if line and not line.startswith('#')]
-              if keys: break
-              print(f'ssh-keyscan attempt {attempt} failed (exit {scan.returncode}): {scan.stderr[:400]}', flush=True)
+              if len(keys) == 1: break
+              print(f'IPv4 ssh-keyscan attempt {attempt} returned {len(keys)} keys; exit {scan.returncode}: {scan.stderr[:300]}', flush=True)
               time.sleep(3)
-          if len(keys) != 1: raise RuntimeError('No unique ED25519 SSH host key obtained after 3 attempts; deployment stopped before file changes')
+          if len(keys) != 1:
+              raise RuntimeError('No unique ED25519 host key via IPv4; no files changed')
           check = subprocess.run(['ssh-keygen','-lf','-'],input=keys[0]+'\n',text=True,capture_output=True,check=True)
           if expected not in check.stdout:
               raise RuntimeError('SSH host fingerprint mismatch; refusing deployment')
@@ -124,8 +134,11 @@ jobs:
           known_hosts.chmod(0o600)
           ssh = paramiko.SSHClient()
           ssh.load_host_keys(str(known_hosts))
+          # Preserve pinned host-key verification when connecting by IPv4.
+          import base64
+          ssh.get_host_keys().add(connected_address, 'ssh-ed25519', paramiko.Ed25519Key(data=base64.b64decode(keys[0].split()[2])))
           ssh.set_missing_host_key_policy(paramiko.RejectPolicy())
-          ssh.connect(hostname=host, port=port, username=user, password=password,
+          ssh.connect(hostname=connected_address, port=port, username=user, password=password,
                       look_for_keys=False, allow_agent=False, timeout=20,
                       auth_timeout=20, banner_timeout=20)
           sftp = ssh.open_sftp()
