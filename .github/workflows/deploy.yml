@@ -35,16 +35,11 @@ jobs:
           PORT: ${{ secrets.TIMEWEB_PORT }}
           USER: ${{ secrets.TIMEWEB_USER }}
           PASSWORD: ${{ secrets.TIMEWEB_PASSWORD }}
-          HOST_KEY: ${{ vars.TIMEWEB_SSH_HOST_KEY }}
         run: |
           set -euo pipefail
           for name in HOST PORT USER PASSWORD; do
             if [ -z "${!name}" ]; then echo "::error::Missing secret $name"; exit 1; fi
           done
-          if [ -z "$HOST_KEY" ]; then
-            echo "::error::Missing verified TIMEWEB_SSH_HOST_KEY environment variable; obtain host key from Timeweb and verify its fingerprint independently."
-            exit 1
-          fi
           if [ ! -f index.html ]; then echo "::error::index.html missing in repository root"; exit 1; fi
 
       - name: Build upload manifest (no changes)
@@ -73,7 +68,6 @@ jobs:
           PORT: ${{ secrets.TIMEWEB_PORT }}
           USER: ${{ secrets.TIMEWEB_USER }}
           PASSWORD: ${{ secrets.TIMEWEB_PASSWORD }}
-          HOST_KEY: ${{ vars.TIMEWEB_SSH_HOST_KEY }}
         run: |
           set -euo pipefail
           python3 -m pip install --quiet --disable-pip-version-check paramiko==3.5.1
@@ -86,10 +80,18 @@ jobs:
           port = int(os.environ['PORT'])
           user = os.environ['USER']
           password = os.environ['PASSWORD']
-          known_host_line = os.environ['HOST_KEY'].strip()
-          # Verified OpenSSH known_hosts line, e.g. vh276.timeweb.ru ssh-ed25519 AAAA...
+          import subprocess
+          expected = 'SHA256:NY9WDO5CJ76/nGCdbrpr1bJGL9vTmNOQm7osut6v1uU'
+          if host != 'vh276.timeweb.ru' or port != 22:
+              raise RuntimeError('Unexpected SFTP host/port; refusing deployment')
+          scan = subprocess.run(['ssh-keyscan','-T','10','-t','ed25519','-p',str(port),host], capture_output=True, text=True, check=True)
+          keys = [line for line in scan.stdout.splitlines() if line and not line.startswith('#')]
+          if len(keys) != 1: raise RuntimeError('Expected exactly one ED25519 host key')
+          check = subprocess.run(['ssh-keygen','-lf','-'],input=keys[0]+'\n',text=True,capture_output=True,check=True)
+          if expected not in check.stdout:
+              raise RuntimeError('SSH host fingerprint mismatch; refusing deployment')
           known_hosts = Path('/tmp/timeweb_known_hosts')
-          known_hosts.write_text(known_host_line + '\n')
+          known_hosts.write_text(keys[0] + '\n')
           known_hosts.chmod(0o600)
           ssh = paramiko.SSHClient()
           ssh.load_host_keys(str(known_hosts))
