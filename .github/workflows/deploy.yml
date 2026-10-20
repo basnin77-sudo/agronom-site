@@ -1,0 +1,124 @@
+name: Deploy website to Timeweb (SFTP)
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Choose dry-run first; deploy uploads website files"
+        required: true
+        type: choice
+        default: dry-run
+        options:
+          - dry-run
+          - deploy
+
+permissions:
+  contents: read
+
+concurrency:
+  group: timeweb-site-deploy
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    environment: timeweb-production
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Validate deployment configuration
+        env:
+          HOST: ${{ secrets.TIMEWEB_HOST }}
+          PORT: ${{ secrets.TIMEWEB_PORT }}
+          USER: ${{ secrets.TIMEWEB_USER }}
+          PASSWORD: ${{ secrets.TIMEWEB_PASSWORD }}
+          HOST_KEY: ${{ vars.TIMEWEB_SSH_HOST_KEY }}
+        run: |
+          set -euo pipefail
+          for name in HOST PORT USER PASSWORD; do
+            if [ -z "${!name}" ]; then echo "::error::Missing secret $name"; exit 1; fi
+          done
+          if [ -z "$HOST_KEY" ]; then
+            echo "::error::Missing verified TIMEWEB_SSH_HOST_KEY environment variable; obtain host key from Timeweb and verify its fingerprint independently."
+            exit 1
+          fi
+          if [ ! -f index.html ]; then echo "::error::index.html missing in repository root"; exit 1; fi
+
+      - name: Build upload manifest (no changes)
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          excluded_dirs = {'.git','.github','__pycache__','.venv','node_modules'}
+          excluded_files = {'README.md','README_RU.txt','README_UPDATE.txt','FILES_SHA256.txt','configure_domain.py','.gitignore'}
+          files = []
+          for p in Path('.').rglob('*'):
+              if not p.is_file() or any(x in excluded_dirs for x in p.parts) or p.name in excluded_files or p.name.startswith('.'):
+                  continue
+              files.append(p.as_posix())
+          files.sort()
+          if 'index.html' not in files: raise SystemExit('index.html absent from upload manifest')
+          Path('/tmp/site-manifest.txt').write_text('\n'.join(files)+'\n')
+          print(f'Prepared {len(files)} website files. First 40:')
+          print('\n'.join(files[:40]))
+          PY
+
+      - name: Upload files (only in deploy mode)
+        if: ${{ inputs.mode == 'deploy' }}
+        env:
+          HOST: ${{ secrets.TIMEWEB_HOST }}
+          PORT: ${{ secrets.TIMEWEB_PORT }}
+          USER: ${{ secrets.TIMEWEB_USER }}
+          PASSWORD: ${{ secrets.TIMEWEB_PASSWORD }}
+          HOST_KEY: ${{ vars.TIMEWEB_SSH_HOST_KEY }}
+        run: |
+          set -euo pipefail
+          python3 -m pip install --quiet --disable-pip-version-check paramiko==3.5.1
+          python3 - <<'PY'
+          import os, posixpath
+          from pathlib import Path
+          import paramiko
+
+          host = os.environ['HOST']
+          port = int(os.environ['PORT'])
+          user = os.environ['USER']
+          password = os.environ['PASSWORD']
+          known_host_line = os.environ['HOST_KEY'].strip()
+          # Verified OpenSSH known_hosts line, e.g. vh276.timeweb.ru ssh-ed25519 AAAA...
+          known_hosts = Path('/tmp/timeweb_known_hosts')
+          known_hosts.write_text(known_host_line + '\n')
+          known_hosts.chmod(0o600)
+          ssh = paramiko.SSHClient()
+          ssh.load_host_keys(str(known_hosts))
+          ssh.set_missing_host_key_policy(paramiko.RejectPolicy())
+          ssh.connect(hostname=host, port=port, username=user, password=password,
+                      look_for_keys=False, allow_agent=False, timeout=20,
+                      auth_timeout=20, banner_timeout=20)
+          sftp = ssh.open_sftp()
+          remote_root = 'AGRONOM/public_html'
+          # The prior read-only SFTP test confirmed this path relative to account home.
+          if not sftp.stat(posixpath.join(remote_root,'index.html')):
+              raise RuntimeError('Remote index.html missing; refusing deployment')
+          paths = Path('/tmp/site-manifest.txt').read_text().splitlines()
+          for path in paths:
+              remote = posixpath.join(remote_root, path)
+              folder = posixpath.dirname(remote)
+              current = ''
+              for part in folder.split('/'):
+                  current = posixpath.join(current,part)
+                  try:
+                      sftp.stat(current)
+                  except IOError:
+                      sftp.mkdir(current)
+              # Upload to temporary file, then rename. No remote deletions.
+              temp = remote + '.github-uploading'
+              sftp.put(path,temp)
+              sftp.rename(temp,remote)
+              print('Uploaded:',path)
+          sftp.close()
+          ssh.close()
+          print(f'Deployed {len(paths)} files to {remote_root}; no remote files deleted')
+          PY
