@@ -14,9 +14,9 @@ figure{margin:18px 0}figure img{width:100%;border-radius:16px;display:block}figc
 table{width:100%;border-collapse:collapse;background:var(--card);border-radius:12px;overflow:hidden}td,th{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
 th{font-size:14px;color:var(--muted)}ul{padding-left:22px}li{margin:4px 0}.muted{color:var(--muted);font-size:14px}
 .cta{background:var(--forest);color:#fff;border-radius:20px;padding:22px;margin:32px 0}.cta h2{margin:0 0 6px;color:#fff}
-.cta a.btn{display:inline-block;margin-top:10px;background:#fff;color:var(--forest);font-weight:800;padding:12px 20px;border-radius:12px;text-decoration:none}
+.cta .btn.soon{opacity:.85;cursor:default}.cta a.btn,.cta .btn{display:inline-block;margin-top:10px;background:#fff;color:var(--forest);font-weight:800;padding:12px 20px;border-radius:12px;text-decoration:none}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}.grid a{display:block;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;text-decoration:none;color:var(--ink)}
 .grid a span{display:block;font-size:13px;color:var(--muted)}input.q{width:100%;font:inherit;padding:12px 14px;border:1px solid var(--line);border-radius:12px;margin:8px 0 14px}
 footer{border-top:1px solid var(--line);padding:22px 0;font-size:14px;color:var(--muted)}
 table{table-layout:fixed;overflow-wrap:anywhere}
-@media(max-width:600px){h1{font-size:27px}header nav{display:none}td,th{padding:8px 6px;font-size:15px}.w{padding:0 14px}}
+@media(max-width:600px){h1{font-size:27px}header .w{flex-wrap:wrap;gap:6px 16px}header nav{margin-left:0;width:100%;overflow-x:auto;white-space:nowrap;gap:14px;font-size:14px;padding-bottom:2px}td,th{padding:8px 6px;font-size:15px}.w{padding:0 14px}}
