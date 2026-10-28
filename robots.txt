@@ -1,2 +1,3 @@
 User-agent: *
 Allow: /
+Sitemap: https://agronom-ryadom.ru/sitemap.xml
